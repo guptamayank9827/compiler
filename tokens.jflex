@@ -124,7 +124,7 @@ return          {return newSym(sym.RETURN, "return");}
 {character}     {return newSym(sym.CHAR_LIT, yytext());}
 {string}        {return newSym(sym.STR_LIT, yytext());}
 {float}         {return newSym(sym.FLOAT_LIT, new Float(yytext()));}
-{comment}       {return newSym(sym.COMMENT, yytext());}
+{comment}       {/* Ignore comments. */}
 
 {whitespace}    { /* Ignore whitespace. */ }
 .               { System.out.println("Illegal char, '" + yytext() + "' line: " + yyline + ", column: " + yychar); }
