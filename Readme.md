@@ -1,12 +1,12 @@
-## Part 1 - Scanner
+## Phase #2 - Parser
 
-This phase accepts an input text file and breaks it down into acceptable tokens.
+This phase accepts an input text file and parses it according to acceptable grammar rules.
 
-The tokens are categorized as per their terminal types.
+All the grammar rules are defined using a combination of terminals and non-terminals.
 
-tokens.jflex file defines the regEx rules to identify token, and creates a Symbol object for each.
+grammar.cup file holds all the production rules, which accepts a given input text file.
 
-grammar.cup file defines all the terminals along with their number.
+This input is parsed and printed as indentated code text file.
 
 
 Steps to run the code:
@@ -15,14 +15,14 @@ Steps to run the code:
     OR
     ```make```
 
-    This will accept the three input test files (basicTerminals.txt, basicRegex.txt, basicFails.txt) and create their respective output files.
+    This will accept the four input test files (Phase2_empty.txt, Phase2_fields.txt, Phase2_methods.txt, and Phase2_full.txt) and create their respective output files.
 
 2. For more test cases:
 
     (a) Add a new file <newFile.txt>
     And add the following code in Makefile test command.
     ```
-            $(JAVA) -cp $(CP) LexerTest test-inputs/<newFile.txt> > test-outputs/<newFile-output.txt>
+            $(JAVA) -cp $(CP) ScannerTest test-inputs/<newFile.txt> > test-outputs/<newFile-output.txt>
     ```
 
-    (b) Add new test cases to any of the existing three files, and re-run following step 1.
+    (b) Add new test cases to any of the existing fourt files, and re-run following step 1.

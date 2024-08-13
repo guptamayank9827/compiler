@@ -1,5 +1,6 @@
 import java_cup.runtime.*;
 
+//TERMINALS
 terminal CLASS;             //2
 terminal FINAL;             //3
 terminal VOID;              //4
@@ -47,17 +48,310 @@ terminal TILDE;             //37
 terminal QUESTION;          //38
 terminal COLON;             //39
 
-terminal String COMMENT;    //40
-terminal String INT;        //41
-terminal String CHAR;       //42
-terminal String BOOL;       //43
-terminal String FLOAT;      //44
+terminal String INT;        //40
+terminal String CHAR;       //41
+terminal String BOOL;       //42
+terminal String FLOAT;      //43
 
-terminal String ID;         //45
-terminal int INT_LIT;       //46
-terminal char CHAR_LIT;     //47
-terminal String STR_LIT;    //48
-terminal float FLOAT_LIT;   //49
+terminal String ID;         //44
+terminal int INT_LIT;       //45
+terminal char CHAR_LIT;     //46
+terminal String STR_LIT;    //47
+terminal float FLOAT_LIT;   //48
 
-non terminal dummy;
-dummy ::= ;
+terminal PARAN, SQUARE;
+terminal UNARY_PLUS, UNARY_MINUS;
+terminal TYPE_CAST;
+terminal TERNARY;
+
+
+//NON-TERMINALS
+non terminal Program program;
+non terminal MemberDeclarations memberDeclarations;
+non terminal FieldDeclarations fieldDeclarations;
+non terminal MethodDeclarations methodDeclarations;
+non terminal FieldDeclaration fieldDeclaration;
+non terminal MethodDeclaration methodDeclaration;
+non terminal String type;
+
+non terminal ArguementDeclarations argDeclarations;
+non terminal ArguementDeclarationList argDeclarationList;
+non terminal ArguementDeclaration argDeclaration;
+non terminal Statements statements;
+non terminal Statement statement;
+
+non terminal PrintLineList printLineList;
+non terminal PrintList printList;
+non terminal ReadList readList;
+
+non terminal Arguements arguements;
+non terminal Name name;
+
+non terminal Expression expression;
+non terminal String optSemicolon;
+
+
+//PRECEDENCE RULES
+precedence left OR;
+precedence left AND;
+precedence left NOT_EQUAL, EQUAL;
+precedence left LESS, GREATER, LESS_EQUAL, GREATER_EQUAL;
+precedence left PLUS, MINUS;
+precedence left MULTIPLY, DIVIDE;
+precedence right UNARY_PLUS, UNARY_MINUS, TILDE, INCREMENT, DECREMENT;
+
+
+//PRODUCTION RULES
+program ::= CLASS ID:id OPEN_CURLY memberDeclarations:memds CLOSE_CURLY
+          {: RESULT = new Program(id, memds); :}
+          ;
+
+memberDeclarations ::= fieldDeclaration:fd memberDeclarations:memds
+            {: RESULT = new MemberDeclarations(fd, memds); :}
+            |
+            methodDeclaration:md methodDeclarations:mds
+            {: RESULT = new MemberDeclarations(md, mds); :}
+            |
+            {: RESULT = new MemberDeclarations(); :}
+            ;
+
+fieldDeclarations ::= fieldDeclaration:fd fieldDeclarations:fds
+          {: RESULT = fds.prepend(fd); :}
+          |
+          {: RESULT = new FieldDeclarations(); :}
+          ;
+
+methodDeclarations ::= methodDeclaration:md methodDeclarations:mds
+          {: RESULT = mds.prepend(md); :}
+          |
+          {: RESULT = new MethodDeclarations(); :}
+          ;
+
+fieldDeclaration ::= FINAL type:t ID:id SEMICOLON
+				{: RESULT = new FieldDeclaration(true, t, id); :}
+				|
+                FINAL type:t ID:id ASSIGN expression:e SEMICOLON
+				{: RESULT = new FieldDeclaration(true, t, id, e); :}
+                |
+                type:t ID:id SEMICOLON
+                {: RESULT = new FieldDeclaration(false, t, id); :}
+                |
+                type:t ID:id ASSIGN expression:e SEMICOLON
+                {: RESULT = new FieldDeclaration(false, t, id, e); :}
+                |
+                type:t ID:i OPEN_SQUARE INT_LIT:intlit CLOSE_SQUARE SEMICOLON
+				{: RESULT = new FieldDeclaration(t, i, intlit); :}
+				;
+
+methodDeclaration ::= VOID ID:id OPEN_PARAN argDeclarations:ads CLOSE_PARAN OPEN_CURLY fieldDeclarations:fds statements:stmts CLOSE_CURLY optSemicolon:optSemi
+            {: RESULT = new MethodDeclaration("void", id, ads, fds, stmts, optSemi); :}
+            |
+            type:t ID:id OPEN_PARAN argDeclarations:ads CLOSE_PARAN OPEN_CURLY fieldDeclarations:fds statements:stmts CLOSE_CURLY optSemicolon:optSemi
+            {: RESULT = new MethodDeclaration(t, id, ads, fds, stmts, optSemi); :}
+            ;
+
+argDeclarations ::= argDeclarationList:adList
+          {: RESULT = new ArguementDeclarations(adList); :}
+          |
+          {: RESULT = new ArguementDeclarations(); :}
+          ;
+
+argDeclarationList ::= argDeclaration:ad COMMA argDeclarationList:adList
+          {: RESULT = adList.prepend(ad); :}
+          |
+          argDeclaration:ad
+          {: RESULT = new ArguementDeclarationList(ad); :}
+          ;
+
+argDeclaration ::= type:t ID:id OPEN_SQUARE CLOSE_SQUARE
+          {: RESULT = new ArguementDeclaration(t, id, true); :}
+          |
+          type:t ID:id
+          {: RESULT = new ArguementDeclaration(t, id); :}
+          ;
+
+statements ::= 
+          IF OPEN_PARAN expression:e CLOSE_PARAN statement:stmt ELSE statement:elseStmt statements:stmts
+          {: RESULT = stmts.prepend(new Statement(e,stmt,elseStmt)); :}
+          |
+          IF OPEN_PARAN expression:e CLOSE_PARAN statement:stmt statements:stmts
+          {: RESULT = stmts.prepend(new Statement(e,stmt,null)); :}
+          |
+          statement:stmt statements:stmts
+          {: RESULT = stmts.prepend(stmt); :}
+          |
+          {: RESULT = new Statements(); :}
+          ;
+
+statement ::= 
+          RETURN SEMICOLON
+          {: RESULT = new Statement(); :}
+          |
+          RETURN expression:e SEMICOLON
+          {: RESULT = new Statement(e); :}
+          |
+          WHILE OPEN_PARAN expression:e CLOSE_PARAN statement:stmt
+          {: RESULT = new Statement(e,stmt); :}
+          |
+          READ OPEN_PARAN readList:rl CLOSE_PARAN SEMICOLON
+          {: RESULT = new Statement(rl); :}
+          |
+          PRINT OPEN_PARAN printList:pl CLOSE_PARAN SEMICOLON
+          {: RESULT = new Statement(pl); :}
+          |
+          PRINTLINE OPEN_PARAN printLineList:pll CLOSE_PARAN SEMICOLON
+          {: RESULT = new Statement(pll); :}
+          |
+          OPEN_CURLY fieldDeclarations:fds statements:stmts CLOSE_CURLY optSemicolon:optSemi
+          {: RESULT = new Statement(fds,stmts,optSemi); :}
+          |
+          name:n ASSIGN expression:e SEMICOLON
+          {: RESULT = new Statement(n,e); :}
+          |
+          name:n DECREMENT SEMICOLON
+          {: RESULT = new Statement(n,"--"); :}
+          |
+          name:n INCREMENT SEMICOLON
+          {: RESULT = new Statement(n,"++"); :}
+          |
+          ID:i OPEN_PARAN CLOSE_PARAN SEMICOLON
+          {: RESULT = new Statement(i); :}
+          |
+          ID:i OPEN_PARAN arguements:args CLOSE_PARAN SEMICOLON
+          {: RESULT = new Statement(i,args); :}
+          ;
+
+readList ::= name:n COMMA readList:rList
+          {: RESULT = rList.prepend(n); :}
+          |
+          name:n
+          {: RESULT = new ReadList(n); :}
+          ;
+
+printLineList ::= printList:pList
+          {: RESULT = new PrintLineList(pList); :}
+          |
+          {: RESULT = new PrintLineList(); :}
+          ;
+
+printList ::= expression:e COMMA printList:pList
+          {: RESULT = pList.prepend(e); :}
+          |
+          expression:e
+          {: RESULT = new PrintList(e); :}
+          ;
+
+expression ::= TRUE
+            {: RESULT = new Expression(true, "literal"); :}
+            |
+            FALSE
+            {: RESULT = new Expression(false, "literal"); :}
+            |
+            TILDE expression:e
+            {: RESULT = new Expression(e,"~"); :}
+            |
+            MINUS expression:e
+            {: RESULT = new Expression(e,"-"); :} %prec UNARY_MINUS
+            |
+            PLUS expression:e
+            {: RESULT = new Expression(e,"+"); :} %prec UNARY_PLUS
+            |
+            name:n
+            {: RESULT = new Expression(n); :}
+            |
+            ID:i OPEN_PARAN CLOSE_PARAN
+            {: RESULT = new Expression(i); :}
+            |
+            ID:i OPEN_PARAN arguements:args CLOSE_PARAN
+            {: RESULT = new Expression(i, args); :}
+            |
+            OPEN_PARAN expression:e CLOSE_PARAN
+            {: RESULT = new Expression(e); :}
+            |
+            OPEN_PARAN type:t CLOSE_PARAN expression:e
+            {: RESULT = new Expression(t,e); :}
+            |
+            expression:e1 MULTIPLY expression:e2
+            {: RESULT = new Expression(e1, e2, "*"); :}
+            |
+            expression:e1 DIVIDE expression:e2
+            {: RESULT = new Expression(e1, e2, "/"); :}
+            |
+            expression:e1 PLUS expression:e2
+            {: RESULT = new Expression(e1, e2, "+"); :}
+            |
+            expression:e1 MINUS expression:e2
+            {: RESULT = new Expression(e1, e2, "-"); :}
+            |
+            expression:e1 LESS expression:e2
+            {: RESULT = new Expression(e1, e2, "<"); :}
+            |
+            expression:e1 GREATER expression:e2
+            {: RESULT = new Expression(e1, e2, ">"); :}
+            |
+            expression:e1 LESS_EQUAL expression:e2
+            {: RESULT = new Expression(e1, e2, "<="); :}
+            |
+            expression:e1 GREATER_EQUAL expression:e2
+            {: RESULT = new Expression(e1, e2, ">="); :}
+            |
+            expression:e1 NOT_EQUAL expression:e2
+            {: RESULT = new Expression(e1, e2, "<>"); :}
+            |
+            expression:e1 EQUAL expression:e2
+            {: RESULT = new Expression(e1, e2, "=="); :}
+            |
+            expression:e1 AND expression:e2
+            {: RESULT = new Expression(e1, e2, "&&"); :}
+            |
+            expression:e1 OR expression:e2
+            {: RESULT = new Expression(e1, e2, "||"); :}
+            |
+            OPEN_PARAN expression:e1 QUESTION expression:e2 COLON expression:e3 CLOSE_PARAN
+            {: RESULT = new Expression(e1, e2, e3); :}
+            |
+            INT_LIT:i
+            {: RESULT = new Expression(i, "literal"); :}
+            |
+            CHAR_LIT:c
+            {: RESULT = new Expression(c, "literal"); :}
+            |
+            FLOAT_LIT:f
+            {: RESULT = new Expression(f, "literal"); :}
+            |
+            STR_LIT:s
+            {: RESULT = new Expression(s, "literal"); :}
+            ;
+
+arguements ::= expression:e COMMA arguements:args
+          {: RESULT = args.prepend(e); :}
+          |
+          expression:e
+          {: RESULT = new Arguements(e); :}
+          ;
+
+name ::= ID:id
+        {: RESULT = new Name(id); :}
+        |
+        ID:id OPEN_SQUARE expression:e CLOSE_SQUARE
+        {: RESULT = new Name(id, e); :}
+        ;
+
+optSemicolon ::= SEMICOLON
+          {: RESULT = ";"; :}
+          |
+          {: RESULT = ""; :}
+          ;
+
+type ::=  INT:i
+          {: RESULT = i; :}
+          |
+          CHAR:c
+          {: RESULT = c; :}
+          |
+          BOOL:b
+          {: RESULT = b; :}
+          |
+          FLOAT:f
+          {: RESULT = f; :}
+          ;
