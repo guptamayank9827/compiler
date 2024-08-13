@@ -19,6 +19,27 @@ public class ArguementDeclarationList extends Token {
         return this;
     }
 
+    /*public String getType() {
+
+        if(arguementDeclarations == null)    return "";
+
+        String fullType = ":";
+
+        for (ArguementDeclaration arguementDeclaration : arguementDeclarations) {
+          fullType = fullType + arguementDeclaration.getType() + ":";
+        }
+
+        return fullType;
+    }*/
+
+    public int getSize() {
+        return arguementDeclarations == null ? 0 : arguementDeclarations.size();
+    }
+
+    public List<ArguementDeclaration> getArray() {
+        return arguementDeclarations;
+    }
+
     public String toString(int t) {
 
         if(arguementDeclarations.size() < 1)    return "";
@@ -31,5 +52,14 @@ public class ArguementDeclarationList extends Token {
         }
 
         return text;
+    }
+
+    public SymbolTable.Type typeCheck() throws LangException {
+        if(arguementDeclarations == null || arguementDeclarations.size() < 1)   return null;
+
+        for (ArguementDeclaration arguementDeclaration : arguementDeclarations)
+            arguementDeclaration.typeCheck();
+
+        return null;
     }
 }

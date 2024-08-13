@@ -1,0 +1,1 @@
+Ternary Expressions FLOAT and BOOL are not of same type

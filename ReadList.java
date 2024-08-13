@@ -27,4 +27,21 @@ public class ReadList extends Token {
 
         return text;
     }
+
+    public SymbolTable.Type typeCheck() throws LangException {
+        if(names == null || names.size() < 1)   return null;
+
+        for (Name name : names) {
+
+            name.typeCheck();
+            SymbolTable.Variable variable = symbolTable.getElement(name.name);
+
+            if(variable.isFinal)    throw new LangException("Read isn't applicable on final variable " + variable.name);
+            if(variable.isMethod)   throw new LangException("Read isn't applicable on method " + variable.name);
+            if(variable.isArray && name.expression==null)    throw new LangException("Read isn't applicable on array " + variable.name);
+        }
+
+        return null;
+    }
+
 }

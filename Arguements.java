@@ -19,6 +19,10 @@ public class Arguements extends Token {
         return this;
     }
 
+    public List<Expression> getArguements() {
+        return arguements;
+    }
+
     public String toString(int t) {
         if(arguements.size() < 1)   return "";
 
@@ -30,6 +34,15 @@ public class Arguements extends Token {
         }
 
         return text;
+    }
+
+    public SymbolTable.Type typeCheck() throws LangException {
+        if(arguements == null || arguements.size() < 1) return null;
+
+        for (Expression arguement : arguements)
+            arguement.typeCheck();
+
+        return null;
     }
 }
 

@@ -48,4 +48,16 @@ public class FieldDeclaration extends Token {
 
         return text;
     }
+
+    public SymbolTable.Type typeCheck() throws LangException {
+        symbolTable.addVariable(type, id, isFinal, int_lit>0?true:false);
+
+        if(expression == null)  return null;
+
+        SymbolTable.Type expressionType = expression.typeCheck();
+        if(!symbolTable.coercibleByType(expressionType, symbolTable.stringToEnumType(type)))
+            throw new LangException("Cannot assign " + expressionType + " to " + symbolTable.stringToEnumType(type));
+
+        return null;
+    }
 }

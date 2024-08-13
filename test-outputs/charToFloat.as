@@ -1,0 +1,1 @@
+Cannot assign a CHAR to FLOAT

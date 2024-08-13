@@ -40,4 +40,18 @@ public class MemberDeclarations extends Token {
 
         return text;
     }
+
+    public SymbolTable.Type typeCheck() throws LangException {
+
+        if(fieldDeclaration != null) {
+            fieldDeclaration.typeCheck();
+            if(memberDeclarations != null)  memberDeclarations.typeCheck();
+        }
+        else if(methodDeclaration != null) {
+            methodDeclaration.typeCheck();
+            if(methodDeclarations != null)  methodDeclarations.typeCheck();
+        }
+
+        return null;
+    }
 }
