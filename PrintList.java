@@ -27,4 +27,23 @@ public class PrintList extends Token {
 
         return text;
     }
+
+    public SymbolTable.Type typeCheck() throws LangException {
+        if(expressions == null || expressions.size() < 1)   return null;
+
+        for (Expression expression : expressions) {
+            SymbolTable.Type expressionType = expression.typeCheck();
+
+            if(expressionType.equals(SymbolTable.Type.VOID))
+                throw new LangException("Cannot print void type expression");
+
+            if(expression.name != null) {
+                SymbolTable.Variable variable = symbolTable.getElement(expression.name.name);
+                if(variable.isArray && expression.name.expression==null)
+                    throw new LangException("Cannot print array " + variable.name);
+            }
+        }
+
+        return null;
+    }
 }

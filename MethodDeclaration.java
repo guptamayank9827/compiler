@@ -16,6 +16,10 @@ public class MethodDeclaration extends Token {
         this.semicolon = semicolon;
     }
 
+    public String getType() {
+        return returnType;
+    }
+
     public String toString(int t) {
         String text = getTabs(t) + returnType + " " + methodName + "(" + argDeclarations.toString(t) + ") {\n";
 
@@ -25,5 +29,38 @@ public class MethodDeclaration extends Token {
         text += getTabs(t) + "}" + (semicolon != "" ? ";":"") + "\n";
 
         return text;
+    }
+
+    public SymbolTable.Type typeCheck() throws LangException {
+        symbolTable.addMethod(returnType, methodName, argDeclarations);
+
+        symbolTable.startScope();
+
+        argDeclarations.typeCheck();
+        fieldDeclarations.typeCheck();
+        statements.typeCheck();
+
+        Statement returnStatement = null;
+        for (Statement statement : statements.getStatements()) {
+            if(statement.type.equals("RETURN") || statement.type.equals("RETURN_EXPRESSION")) {
+                returnStatement = statement;
+                break;
+            }
+        }
+
+        if(returnStatement == null && !symbolTable.stringToEnumType(returnType).equals(SymbolTable.Type.VOID))
+            throw new LangException("Missing return statement in method " + methodName);
+
+        if(returnStatement == null) {
+            symbolTable.endScope();
+            return null;
+        }
+
+        if(!symbolTable.coercibleByType(returnStatement.typeCheck(), symbolTable.stringToEnumType(returnType)))
+            throw new LangException("Return type " + returnStatement.typeCheck() + " doesn't match method type " + symbolTable.stringToEnumType(returnType));
+
+        symbolTable.endScope();
+
+        return null;
     }
 }

@@ -43,24 +43,32 @@ Symbol newSym(int tokenId, Object value) {
 /*-*
  * PATTERN DEFINITIONS:
 */
-digit = [0-9]
-letter = [a-zA-Z]
-whitespace = [ \n\t\r]
-id = {letter}({letter}|{digit})*
-integer = {digit}+
-float = {digit}+.{digit}+
+tab     		  = \\t
+newline	          = \\n
+slash			  = \\ 
+escapeapos		  = {slash}'
+escapequote		  = {slash}\"
+letter      	  = [A-Za-z]
+digit       	  = [0-9]
+whitespace        = [ \n\t\r]
 
-allChars = [^\r\n]
-chars = [[^'] && [^\\]]
-terminator = (\r | \n | \r\n)
-commentLine = {allChars}*{terminator}?
+id   			  = {letter}({letter}|{digit})* 
+integer	    	  = {digit}+
+float    	      = {integer}+\.{integer}+
 
-character = \'(\\' | \\\\ | \\n | \\t | ({chars}))\'
-string = \"({allChars} | \\n | \\t | \\\" | \\\' | \\\\ )*\"
+charchar		  = [[^\\]&&[^']]|{newline}|{tab}|{escapeapos}|{slash}{slash}
+character     	  = '{charchar}'
 
-singleComment = \\\\{commentLine}
-multiComment = \\\*{commentLine}*\*\\{terminator}?
-comment = ({singleComment} | {multiComment})
+stringchar		  = [[[^\\]&&[^\"]]&&[[^\n]&&[^\t]]]|{newline}|{tab}|{escapequote}|{slash}{slash}
+string		      = \"{stringchar}*\"
+
+blockcommentS     = {slash}\*
+blockcommentE     = \*{slash}
+commentbody		  = ([^\*]|(\*+[^\\]))
+blockcomment      = {blockcommentS}{commentbody}*?{blockcommentE}
+inlinecomment 	  = {slash}{slash}.*(\n|\r|\r\n)
+comment           = ({inlinecomment} | {blockcomment})
+
 
 %%
 /**
@@ -121,7 +129,7 @@ return          {return newSym(sym.RETURN, "return");}
 
 {id}            {return newSym(sym.ID, yytext());}
 {integer}       {return newSym(sym.INT_LIT, new Integer(yytext()));}
-{character}     {return newSym(sym.CHAR_LIT, yytext());}
+{character}     {return newSym(sym.CHAR_LIT, yytext().charAt(1));}
 {string}        {return newSym(sym.STR_LIT, yytext());}
 {float}         {return newSym(sym.FLOAT_LIT, new Float(yytext()));}
 {comment}       {/* Ignore comments. */}

@@ -37,12 +37,24 @@ public class ScannerTest{
         Lexer lexer = new Lexer(reader);
         parser parser = new parser(lexer);
         Program program = null;
+
         try {
           program = (Program) parser.parse().value;
-          System.out.print(program.toString(0));
         }
         catch (Exception e) {
           e.printStackTrace();
+        }
+
+        if (program != null) {
+          try {
+            program.typeCheck();
+            System.out.print("All Good!");
+            System.err.println("All Good!");
+          }
+          catch (LangException e) {
+            System.out.print(e.toString());
+            System.err.println(e.toString());
+          }
         }
     }
 }

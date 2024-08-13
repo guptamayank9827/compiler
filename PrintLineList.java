@@ -13,4 +13,10 @@ public class PrintLineList extends Token {
     public String toString(int t) {
         return (printList == null ? "" : printList.toString(t));
     }
+
+    public SymbolTable.Type typeCheck() throws LangException {
+        if(printList == null)   return null;
+
+        return printList.typeCheck();
+    }
 }

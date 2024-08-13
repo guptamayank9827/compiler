@@ -1,0 +1,1 @@
+Cannot negate a non-boolean

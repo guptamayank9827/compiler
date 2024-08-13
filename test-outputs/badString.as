@@ -1,0 +1,1 @@
+Left Expression STRING is not a number

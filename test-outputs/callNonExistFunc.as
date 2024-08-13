@@ -1,0 +1,1 @@
+Cannot find declaration of Variable/Method nonExistFoo

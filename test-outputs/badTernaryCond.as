@@ -1,0 +1,1 @@
+Ternary Condition FLOAT is not a boolean

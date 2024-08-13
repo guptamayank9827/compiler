@@ -1,0 +1,1 @@
+Cannot apply a Unary operator on non-number x

@@ -25,4 +25,13 @@ public class FieldDeclarations extends Token {
 
         return text;
     }
+
+    public SymbolTable.Type typeCheck() throws LangException {
+        if(fieldDeclarations == null || fieldDeclarations.size() < 1)   return null;
+
+        for (FieldDeclaration fieldDeclaration : fieldDeclarations)
+            fieldDeclaration.typeCheck();
+
+        return null;
+    }
 }

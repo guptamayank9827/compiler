@@ -13,6 +13,10 @@ public class Statements extends Token {
         return this;
     }
 
+    public List<Statement> getStatements() {
+        return statements;
+    }
+
     public String toString(int t) {
         if(statements.size() < 1)   return "";
 
@@ -22,5 +26,14 @@ public class Statements extends Token {
             text += statement.toString(t);
 
         return text;
+    }
+
+    public SymbolTable.Type typeCheck() throws LangException {
+        if(statements == null || statements.size() < 1) return null;
+
+        for (Statement statement : statements)
+            statement.typeCheck();
+
+        return null;
     }
 }

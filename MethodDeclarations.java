@@ -24,4 +24,13 @@ public class MethodDeclarations extends Token {
 
         return text;
     }
+
+    public SymbolTable.Type typeCheck() throws LangException {
+        if(methodDeclarations == null || methodDeclarations.size() < 1)   return null;
+
+        for (MethodDeclaration methodDeclaration : methodDeclarations)
+            methodDeclaration.typeCheck();
+
+        return null;
+    }
 }

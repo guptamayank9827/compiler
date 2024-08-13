@@ -1,0 +1,1 @@
+RHS of assignment cannot be an array: x
